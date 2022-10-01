@@ -1,0 +1,4 @@
+bases:
+  - ../../validator
+patches:
+  - resources.yaml

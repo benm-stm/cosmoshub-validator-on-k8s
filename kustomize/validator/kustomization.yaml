@@ -1,0 +1,5 @@
+resources:
+- namespace.yaml
+- configMap.yaml
+- sa.yaml
+- validator.yaml

@@ -37,6 +37,9 @@ spec:
         - containerPort: 26657
         - containerPort: 9090
         - containerPort: 1317
+        volumeMounts:
+        - name: config
+          mountPath: /root/config
         resources:
           requests:
             memory: "4Gi"
@@ -61,3 +64,6 @@ spec:
         volumeMounts:
         - name: config
           mountPath: "/root/.gaia/config"
+      volumes:
+      - name: config
+        emptyDir: {}
