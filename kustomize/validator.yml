@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: validator
+  namespace: cosmos
+  labels:
+    app: validator
+  annotations:
+    container.seccomp.security.alpha.kubernetes.io/pod: ""
+    container.apparmor.security.beta.kubernetes.io/nginx: ""
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: validator
+  template:
+    metadata:
+      labels:
+        app: validator
+    spec:
+      serviceAccountName: validator-sa
+      automountServiceAccountToken: false
+      containers:
+      - name: validator
+        image: benmstm/cosmos-gaia:v7.0.3
+        command:
+        - --moniker=$MONIKER
+        - --minimum-gas-prices=$MINIMUM_GAS_PRICE
+        - --p2p.seeds==$SEEDS
+        - --p2p.persistent_peers=$PEERS
+        - $EXTRA_ARGS
+        envFrom:
+        - configMapRef:
+            name: validator
+        ports:
+        - containerPort: 26656
+        - containerPort: 26657
+        - containerPort: 9090
+        - containerPort: 1317
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "16"
+          limits:
+            memory: "8Gi"
+            cpu: "32"
+        securityContext:
+          capabilities:
+            drop:
+            - ALL
+          runAsNonRoot: true
+          runAsUser: 10001
+          readOnlyRootFilesystem: true
+      
+      initContainers:
+      - name: init
+        image: busybox:1.28
+        command:
+        - wget $GENESIS_URL -O genesis.json
+        - wget $QUICKSYNC_ADDR_BOOK_URL -O addrbook.json
+        volumeMounts:
+        - name: config
+          mountPath: "/root/.gaia/config"
