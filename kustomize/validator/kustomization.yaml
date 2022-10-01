@@ -1,5 +1,6 @@
 resources:
 - namespace.yaml
-- configMap.yaml
+- init-cm.yaml
+- validator-cm.yaml
 - sa.yaml
 - validator.yaml

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: validator-conf
+  namespace: cosmos
+data:
+  MONIKER: node-guardians
+  MINIMUM_GAS_PRICE: 0.0025uatom
+  SEEDS: ""
+  PEERS: ""
+  EXTRA_ARGS: --x-crisis-skip-assert-invariants

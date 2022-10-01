@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: validator-init
+  namespace: cosmos
+data:
+  init.sh: |-
+    #!/bin/sh
+    # download and unzip genesis
+    apk add --no-cache --quiet wget 
+    wget -q --no-check-certificate -O genesis.json.gz https://raw.githubusercontent.com/cosmos/mainnet/master/genesis/genesis.cosmoshub-4.json.gz
+    gzip -d genesis.json.gz
+    mv genesis.json /config/genesis.json
+    # download address book json
+    wget -c -q -O /config/addrbook.json https://dl2.quicksync.io/json/addrbook.cosmos.json 
+    ls -la /config
+    echo success
+
+  

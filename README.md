@@ -2,8 +2,8 @@
 Cosmos Validator on k8s
 
 # Prerequisists
-k8s cluster configured
-kubectl
+- k8s cluster configured
+- kubectl
 
 # How to run
 ```

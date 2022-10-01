@@ -18,20 +18,15 @@ spec:
       labels:
         app: validator
     spec:
-      serviceAccountName: validator-sa
+      serviceAccountName: validator
       automountServiceAccountToken: false
       containers:
       - name: validator
         image: benmstm/cosmos-gaia:v7.0.3
-        command:
-        - --moniker=$MONIKER
-        - --minimum-gas-prices=$MINIMUM_GAS_PRICE
-        - --p2p.seeds==$SEEDS
-        - --p2p.persistent_peers=$PEERS
-        - $EXTRA_ARGS
+        args: [--moniker="$(NODE_NAME)", --minimum-gas-prices=$(MINIMUM_GAS_PRICE), --p2p.seeds=$(SEEDS), --p2p.persistent_peers=$(PEERS), $(EXTRA_ARGS)]
         envFrom:
         - configMapRef:
-            name: validator
+            name: validator-conf
         ports:
         - containerPort: 26656
         - containerPort: 26657
@@ -39,7 +34,7 @@ spec:
         - containerPort: 1317
         volumeMounts:
         - name: config
-          mountPath: /root/config
+          mountPath: /root/.gaia/config
         resources:
           requests:
             memory: "4Gi"
@@ -51,19 +46,25 @@ spec:
           capabilities:
             drop:
             - ALL
-          runAsNonRoot: true
-          runAsUser: 10001
-          readOnlyRootFilesystem: true
-      
+          #runAsNonRoot: true
+          #runAsUser: 10001
+          #readOnlyRootFilesystem: true
+
       initContainers:
       - name: init
-        image: busybox:1.28
-        command:
-        - wget $GENESIS_URL -O genesis.json
-        - wget $QUICKSYNC_ADDR_BOOK_URL -O addrbook.json
+        image: alpine:3.16.2
+        command: ["/bin/init.sh"]
         volumeMounts:
         - name: config
-          mountPath: "/root/.gaia/config"
+          mountPath: "/config"
+        - name: init
+          mountPath: /bin/init.sh
+          readOnly: true
+          subPath: init.sh
       volumes:
       - name: config
         emptyDir: {}
+      - name: init
+        configMap:
+          name: validator-init
+          defaultMode: 0700
